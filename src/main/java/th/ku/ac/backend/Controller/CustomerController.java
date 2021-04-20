@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import th.ku.ac.backend.Model.Customer;
+import th.ku.ac.backend.Repository.CustomerRepository;
 import th.ku.ac.backend.Service.CustomerService;
 
 import java.text.DecimalFormat;
@@ -42,6 +43,11 @@ public class CustomerController {
         return customerService.getCustomer(id);
     }
 
+    @PostMapping("/get/email")
+    private Customer getCustomerByEmail(@RequestBody Customer customer ){
+        return findByEmail(customer.getEmail());
+    }
+
     @GetMapping("/getAll")
     private Collection<Customer> getAllCustomer(){
         return customerService.getAllCustomer();
@@ -58,8 +64,8 @@ public class CustomerController {
     }
 
     @PostMapping("/forget/receive/{id}")
-    private boolean customerSendOTP(@PathVariable int id, @RequestBody String OTP){
-        if (customerService.getCustomer(id).getOTP().equals(OTP)) {
+    private boolean customerSendOTP(@PathVariable int id, @RequestBody Customer customer){
+        if (customerService.getCustomer(id).getOTP().equals(customer.getOTP())) {
             Customer record = customerService.getCustomer(id);
             record.setOTP(null);
             customerService.updateCustomer(record);
@@ -69,12 +75,28 @@ public class CustomerController {
     }
 
     @PostMapping("/{id}/changePassword")
-    private void customerChangePassword(@PathVariable int id, @RequestBody String password){
+    private void customerChangePassword(@PathVariable int id, @RequestBody Customer customer){
         Customer record = customerService.getCustomer(id);
-        record.setPassword(generateEncryptPassword(password));
+        record.setPassword(generateEncryptPassword(customer.getPassword()));
         customerService.updateCustomer(record);
     }
 
+
+    @PostMapping("/login")
+    public Customer login(@RequestBody Customer customerAccount){
+        Customer customer = findByEmail(customerAccount.getEmail());
+        if (new BCryptPasswordEncoder().matches(customerAccount.getPassword(),customer.getPassword())) {
+            return customer;
+        }
+        return null;
+    }
+
+    private Customer findByEmail(String email) {
+        for (Customer i : customerService.getAllCustomer()) {
+            if (i.getEmail().equals(email)) return i;
+        }
+        return null;
+    }
 
     private static String generateEncryptPassword(String password) {
         return new BCryptPasswordEncoder().encode(password);
@@ -85,11 +107,11 @@ public class CustomerController {
     }
 
     private static boolean sendOTPToEmail(Customer customer,String OTP){
-        String host = "mail.gmail.com";
-        String from = "";
-        String password = "";
+        String host = "smtp.gmail.com";
+        String from = "lukchinx.1507@gmail.com";
+        String password = "non15071999";
         String to = customer.getEmail();
-        String subject = "";
+        String subject = "forget password";
         Properties properties = new Properties();
         properties.put("mail.smtp.host",host);
         properties.put("mail.smtp.port","465");
@@ -117,8 +139,5 @@ public class CustomerController {
         }
         return false;
         }
-
-
-
 
 }

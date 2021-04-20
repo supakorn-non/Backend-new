@@ -6,5 +6,7 @@ import th.ku.ac.backend.Model.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer,Integer> {
-
+    Customer findByName(String name);
+    Customer findByEmail(String email);
+    Customer findByTel(String tel);
 }

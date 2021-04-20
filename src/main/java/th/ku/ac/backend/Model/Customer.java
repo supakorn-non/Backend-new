@@ -25,8 +25,6 @@ public class Customer {
 
     private String tel ;
 
-    private String address ;
-
     private String password ;
 
     private String OTP;

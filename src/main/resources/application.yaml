@@ -1,14 +1,17 @@
 
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/Backend
+    url: jdbc:mysql://localhost:3306/customer
     username: root
-    password: secret
+    password:
 
   jpa:
     show-sql: true
 
     hibernate:
       ddl-auto: update
+#      dialect: org.hibernate.dialect.MySQLInnoDBDialect
+
+
 server:
-  port: 6000
+  port: 8000
